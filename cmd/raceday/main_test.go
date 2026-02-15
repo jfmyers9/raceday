@@ -8,8 +8,7 @@ import (
 
 func TestAssembleSegments(t *testing.T) {
 	segs := []segment{
-		{"🟢 DAYTONA 500", 0, true},
-		{" | Lap 142/200", 0, false},
+		{"🟢 DAYTONA 500 | Lap 142/200", 0, true},
 		{" | #24 Byron P6 [-2]", 1, true},
 		{" | P1 #8 Busch", 2, false},
 		{" | 72°F ☀️ 12mph", 3, false},
@@ -62,8 +61,7 @@ func TestAssembleSegments(t *testing.T) {
 
 func TestAssembleHybrid(t *testing.T) {
 	segs := []segment{
-		{"🟢 DAYTONA 500", 0, true},
-		{" | Lap 142/200", 0, false},
+		{"🟢 DAYTONA 500 | Lap 142/200", 0, true},
 		{" | #24 Byron P6", 1, true},
 		{" | P1 #8 Busch", 2, false},
 		{" | 72°F Sun 12mph", 3, false},
@@ -71,8 +69,7 @@ func TestAssembleHybrid(t *testing.T) {
 
 	t.Run("static segments with spacer before marquee", func(t *testing.T) {
 		result := assembleHybrid(segs, 80, 2, " • ")
-		// Static portion + spacer must appear at the start
-		staticWithSpacer := "🟢 DAYTONA 500 | #24 Byron P6 | "
+		staticWithSpacer := "🟢 DAYTONA 500 | Lap 142/200 | #24 Byron P6 | "
 		if len(result) < len(staticWithSpacer) || result[:len(staticWithSpacer)] != staticWithSpacer {
 			t.Errorf("static prefix + spacer missing\ngot:  %q\nwant prefix: %q", result, staticWithSpacer)
 		}

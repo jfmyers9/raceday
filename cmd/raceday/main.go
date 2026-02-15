@@ -219,8 +219,7 @@ func weatherSuffix(trackID int) string {
 func liveSegments(feed *nascar.LiveFeed, drivers []int) []segment {
 	flagSym := nascar.FlagSymbol(feed.FlagState)
 	segs := []segment{
-		{fmt.Sprintf("%s %s", flagSym, feed.RunName), 0, true},
-		{fmt.Sprintf(" | Lap %d/%d", feed.LapNumber, feed.LapsInRace), 0, false},
+		{fmt.Sprintf("%s %s | Lap %d/%d", flagSym, feed.RunName, feed.LapNumber, feed.LapsInRace), 0, true},
 	}
 
 	if leader := feed.Leader(); leader != nil {

@@ -1,0 +1,13 @@
+{
+  "id": "fec376",
+  "title": "Fix: make lap count static in hybrid marquee layout",
+  "status": "done",
+  "type": "bug",
+  "priority": 2,
+  "labels": [
+    "fix"
+  ],
+  "created": "2026-02-15T22:59:50.636637Z",
+  "updated": "2026-02-15T23:02:08.770852Z",
+  "description": "## Feedback Analysis"
+}

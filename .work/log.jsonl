@@ -50,3 +50,5 @@
 {"id":"a14104","title":"Phase 4: Edge cases and polish","type":"chore","status":"done","labels":["marquee-hybrid"],"created":"2026-02-15T22:45:15.42521Z","closed":"2026-02-15T22:49:54.635589Z"}
 {"id":"e25295","title":"Fix: add spacer between static and marquee zones","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T22:51:57.649894Z","closed":"2026-02-15T22:52:29.530612Z"}
 {"id":"711869","title":"Phase 1: Add spacer between static and marquee zones","type":"chore","status":"done","labels":["static-marquee-spacer"],"created":"2026-02-15T22:52:25.687151Z","closed":"2026-02-15T22:53:25.910679Z"}
+{"id":"fec376","title":"Fix: make lap count static in hybrid marquee layout","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T22:59:50.636637Z","closed":"2026-02-15T23:02:08.770852Z"}
+{"id":"c48835","title":"Phase 1: Make lap count static","type":"chore","status":"done","labels":["static-lap-count"],"created":"2026-02-15T23:02:04.503061Z","closed":"2026-02-15T23:02:45.549755Z"}

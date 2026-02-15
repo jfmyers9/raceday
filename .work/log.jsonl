@@ -43,3 +43,10 @@
 {"id":"e45eed","title":"Phase 5: Tests","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:20.133086Z","closed":"2026-02-15T22:17:30.306845Z"}
 {"id":"eccf71","title":"Phase 3: Status bar integration","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:59.552447Z","closed":"2026-02-15T21:58:19.876781Z"}
 {"id":"f33e35","title":"Phase 4: Config and documentation","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:18.833901Z","closed":"2026-02-15T22:17:19.387625Z"}
+{"id":"79e86c","title":"Explore: static fields + marquee hybrid layout","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T22:36:04.822234Z","closed":"2026-02-15T22:45:19.597579Z"}
+{"id":"a60d62","title":"Phase 1: Split core segment and add static flag","type":"chore","status":"done","labels":["marquee-hybrid"],"created":"2026-02-15T22:45:10.692044Z","closed":"2026-02-15T22:48:54.082512Z"}
+{"id":"65caa3","title":"Phase 2: Implement hybrid assembly","type":"chore","status":"done","labels":["marquee-hybrid"],"created":"2026-02-15T22:45:12.638949Z","closed":"2026-02-15T22:49:17.493618Z"}
+{"id":"65a3bb","title":"Phase 3: Unit tests for hybrid assembly","type":"chore","status":"done","labels":["marquee-hybrid"],"created":"2026-02-15T22:45:14.029644Z","closed":"2026-02-15T22:49:46.1232Z"}
+{"id":"a14104","title":"Phase 4: Edge cases and polish","type":"chore","status":"done","labels":["marquee-hybrid"],"created":"2026-02-15T22:45:15.42521Z","closed":"2026-02-15T22:49:54.635589Z"}
+{"id":"e25295","title":"Fix: add spacer between static and marquee zones","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T22:51:57.649894Z","closed":"2026-02-15T22:52:29.530612Z"}
+{"id":"711869","title":"Phase 1: Add spacer between static and marquee zones","type":"chore","status":"done","labels":["static-marquee-spacer"],"created":"2026-02-15T22:52:25.687151Z","closed":"2026-02-15T22:53:25.910679Z"}

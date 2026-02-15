@@ -1,0 +1,14 @@
+{
+  "id": "a60d62",
+  "title": "Phase 1: Split core segment and add static flag",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "marquee-hybrid"
+  ],
+  "parent_id": "9bb7fe",
+  "created": "2026-02-15T22:45:10.692044Z",
+  "updated": "2026-02-15T22:48:54.082512Z",
+  "description": "## Acceptance Criteria"
+}

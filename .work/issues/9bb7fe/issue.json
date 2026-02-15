@@ -1,0 +1,12 @@
+{
+  "id": "9bb7fe",
+  "title": "Plan: static+marquee hybrid layout",
+  "status": "open",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "marquee-hybrid"
+  ],
+  "created": "2026-02-15T22:45:05.267451Z",
+  "updated": "2026-02-15T22:45:05.267451Z"
+}

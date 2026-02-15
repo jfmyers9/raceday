@@ -1,0 +1,13 @@
+{
+  "id": "79e86c",
+  "title": "Explore: static fields + marquee hybrid layout",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "explore"
+  ],
+  "created": "2026-02-15T22:36:04.822234Z",
+  "updated": "2026-02-15T22:45:19.597579Z",
+  "description": "# Static Fields + Marquee Hybrid Layout"
+}

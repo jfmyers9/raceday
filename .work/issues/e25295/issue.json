@@ -1,0 +1,13 @@
+{
+  "id": "e25295",
+  "title": "Fix: add spacer between static and marquee zones",
+  "status": "done",
+  "type": "bug",
+  "priority": 2,
+  "labels": [
+    "fix"
+  ],
+  "created": "2026-02-15T22:51:57.649894Z",
+  "updated": "2026-02-15T22:52:29.530612Z",
+  "description": "## Feedback Analysis"
+}

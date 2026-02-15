@@ -1,0 +1,13 @@
+{
+  "id": "c0b36d",
+  "title": "Explore: weather data integration for race location",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "explore"
+  ],
+  "created": "2026-02-15T21:42:57.809067Z",
+  "updated": "2026-02-15T21:53:14.262914Z",
+  "description": "# Weather Data Integration for Race Location"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "eccf71",
+  "title": "Phase 3: Status bar integration",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "weather-integration"
+  ],
+  "created": "2026-02-15T21:52:59.552447Z",
+  "updated": "2026-02-15T21:58:19.876781Z",
+  "description": "## Acceptance Criteria"
+}

@@ -10,3 +10,6 @@
 {"id":"5b1265","title":"Phase 3: Segment prioritization","type":"feature","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:17.226735Z","closed":"2026-02-15T22:16:49.853347Z"}
 {"id":"f33e35","title":"Phase 4: Config and documentation","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:18.833901Z","closed":"2026-02-15T22:17:19.387625Z"}
 {"id":"e45eed","title":"Phase 5: Tests","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:20.133086Z","closed":"2026-02-15T22:17:30.306845Z"}
+{"id":"277443","title":"Fix: marquee never scrolls — segments dropped before marquee","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T22:28:36.336299Z","closed":"2026-02-15T22:29:49.138256Z"}
+{"id":"882b5f","title":"Phase 1: Fix segment dropping before marquee","type":"bug","status":"done","labels":["marquee-segment-fix"],"created":"2026-02-15T22:29:45.70065Z","closed":"2026-02-15T22:30:54.6575Z"}
+{"id":"72f965","title":"Plan: marquee segment-drop fix","type":"chore","status":"done","labels":["marquee-segment-fix"],"created":"2026-02-15T22:29:40.114929Z","closed":"2026-02-15T22:31:05.014509Z"}

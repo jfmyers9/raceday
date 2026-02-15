@@ -1,0 +1,13 @@
+{
+  "id": "277443",
+  "title": "Fix: marquee never scrolls — segments dropped before marquee",
+  "status": "done",
+  "type": "bug",
+  "priority": 2,
+  "labels": [
+    "fix"
+  ],
+  "created": "2026-02-15T22:28:36.336299Z",
+  "updated": "2026-02-15T22:29:49.138256Z",
+  "description": "## Feedback Analysis"
+}

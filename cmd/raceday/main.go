@@ -109,7 +109,11 @@ func runStatus(cfg config.Config, drivers []int, width int, marquee bool) {
 		}
 	}
 
-	s := assembleSegments(segments, width)
+	assembleWidth := width
+	if marquee {
+		assembleWidth = 0
+	}
+	s := assembleSegments(segments, assembleWidth)
 
 	if width > 0 {
 		if marquee {

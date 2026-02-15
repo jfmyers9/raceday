@@ -52,3 +52,7 @@
 {"id":"711869","title":"Phase 1: Add spacer between static and marquee zones","type":"chore","status":"done","labels":["static-marquee-spacer"],"created":"2026-02-15T22:52:25.687151Z","closed":"2026-02-15T22:53:25.910679Z"}
 {"id":"fec376","title":"Fix: make lap count static in hybrid marquee layout","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T22:59:50.636637Z","closed":"2026-02-15T23:02:08.770852Z"}
 {"id":"c48835","title":"Phase 1: Make lap count static","type":"chore","status":"done","labels":["static-lap-count"],"created":"2026-02-15T23:02:04.503061Z","closed":"2026-02-15T23:02:45.549755Z"}
+{"id":"eccf71","title":"Phase 3: Status bar integration","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:59.552447Z","closed":"2026-02-15T21:58:19.876781Z"}
+{"id":"9d366c","title":"Phase 2: Weather client","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:54.60301Z","closed":"2026-02-15T21:56:53.229789Z"}
+{"id":"b1343f","title":"Phase 1: Track coordinate lookup table","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:48.327263Z","closed":"2026-02-15T21:55:33.008147Z"}
+{"id":"c0b36d","title":"Explore: weather data integration for race location","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:42:57.809067Z","closed":"2026-02-15T21:53:14.262914Z"}

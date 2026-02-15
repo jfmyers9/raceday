@@ -13,3 +13,33 @@
 {"id":"277443","title":"Fix: marquee never scrolls — segments dropped before marquee","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T22:28:36.336299Z","closed":"2026-02-15T22:29:49.138256Z"}
 {"id":"882b5f","title":"Phase 1: Fix segment dropping before marquee","type":"bug","status":"done","labels":["marquee-segment-fix"],"created":"2026-02-15T22:29:45.70065Z","closed":"2026-02-15T22:30:54.6575Z"}
 {"id":"72f965","title":"Plan: marquee segment-drop fix","type":"chore","status":"done","labels":["marquee-segment-fix"],"created":"2026-02-15T22:29:40.114929Z","closed":"2026-02-15T22:31:05.014509Z"}
+{"id":"277443","title":"Fix: marquee never scrolls — segments dropped before marquee","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T22:28:36.336299Z","closed":"2026-02-15T22:29:49.138256Z"}
+{"id":"3ca10d","title":"Phase 4: TUI integration","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:53:03.98339Z","closed":"2026-02-15T21:59:29.839696Z"}
+{"id":"50d4d2","title":"Explore: marquee-style status bar rotation","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T22:09:10.211124Z","closed":"2026-02-15T22:12:27.767153Z"}
+{"id":"5b1265","title":"Phase 3: Segment prioritization","type":"feature","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:17.226735Z","closed":"2026-02-15T22:16:49.853347Z"}
+{"id":"6ab664","title":"Phase 5: Polish","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:53:09.02012Z","closed":"2026-02-15T22:01:33.119108Z"}
+{"id":"6adf7c","title":"Phase 1: Width-aware output","type":"feature","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:13.886754Z","closed":"2026-02-15T22:15:26.819736Z"}
+{"id":"72f965","title":"Plan: marquee segment-drop fix","type":"chore","status":"done","labels":["marquee-segment-fix"],"created":"2026-02-15T22:29:40.114929Z","closed":"2026-02-15T22:31:05.014509Z"}
+{"id":"882b5f","title":"Phase 1: Fix segment dropping before marquee","type":"bug","status":"done","labels":["marquee-segment-fix"],"created":"2026-02-15T22:29:45.70065Z","closed":"2026-02-15T22:30:54.6575Z"}
+{"id":"9d366c","title":"Phase 2: Weather client","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:54.60301Z","closed":"2026-02-15T21:56:53.229789Z"}
+{"id":"a77f49","title":"Phase 2: Marquee scrolling","type":"feature","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:16.525126Z","closed":"2026-02-15T22:15:33.483241Z"}
+{"id":"b1343f","title":"Phase 1: Track coordinate lookup table","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:48.327263Z","closed":"2026-02-15T21:55:33.008147Z"}
+{"id":"c0b36d","title":"Explore: weather data integration for race location","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:42:57.809067Z","closed":"2026-02-15T21:53:14.262914Z"}
+{"id":"e45eed","title":"Phase 5: Tests","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:20.133086Z","closed":"2026-02-15T22:17:30.306845Z"}
+{"id":"eccf71","title":"Phase 3: Status bar integration","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:59.552447Z","closed":"2026-02-15T21:58:19.876781Z"}
+{"id":"f33e35","title":"Phase 4: Config and documentation","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:18.833901Z","closed":"2026-02-15T22:17:19.387625Z"}
+{"id":"277443","title":"Fix: marquee never scrolls — segments dropped before marquee","type":"bug","status":"done","labels":["fix"],"created":"2026-02-15T22:28:36.336299Z","closed":"2026-02-15T22:29:49.138256Z"}
+{"id":"3ca10d","title":"Phase 4: TUI integration","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:53:03.98339Z","closed":"2026-02-15T21:59:29.839696Z"}
+{"id":"50d4d2","title":"Explore: marquee-style status bar rotation","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T22:09:10.211124Z","closed":"2026-02-15T22:12:27.767153Z"}
+{"id":"5b1265","title":"Phase 3: Segment prioritization","type":"feature","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:17.226735Z","closed":"2026-02-15T22:16:49.853347Z"}
+{"id":"6ab664","title":"Phase 5: Polish","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:53:09.02012Z","closed":"2026-02-15T22:01:33.119108Z"}
+{"id":"6adf7c","title":"Phase 1: Width-aware output","type":"feature","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:13.886754Z","closed":"2026-02-15T22:15:26.819736Z"}
+{"id":"72f965","title":"Plan: marquee segment-drop fix","type":"chore","status":"done","labels":["marquee-segment-fix"],"created":"2026-02-15T22:29:40.114929Z","closed":"2026-02-15T22:31:05.014509Z"}
+{"id":"882b5f","title":"Phase 1: Fix segment dropping before marquee","type":"bug","status":"done","labels":["marquee-segment-fix"],"created":"2026-02-15T22:29:45.70065Z","closed":"2026-02-15T22:30:54.6575Z"}
+{"id":"9d366c","title":"Phase 2: Weather client","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:54.60301Z","closed":"2026-02-15T21:56:53.229789Z"}
+{"id":"a77f49","title":"Phase 2: Marquee scrolling","type":"feature","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:16.525126Z","closed":"2026-02-15T22:15:33.483241Z"}
+{"id":"b1343f","title":"Phase 1: Track coordinate lookup table","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:48.327263Z","closed":"2026-02-15T21:55:33.008147Z"}
+{"id":"c0b36d","title":"Explore: weather data integration for race location","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:42:57.809067Z","closed":"2026-02-15T21:53:14.262914Z"}
+{"id":"e45eed","title":"Phase 5: Tests","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:20.133086Z","closed":"2026-02-15T22:17:30.306845Z"}
+{"id":"eccf71","title":"Phase 3: Status bar integration","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:59.552447Z","closed":"2026-02-15T21:58:19.876781Z"}
+{"id":"f33e35","title":"Phase 4: Config and documentation","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:18.833901Z","closed":"2026-02-15T22:17:19.387625Z"}

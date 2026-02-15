@@ -67,9 +67,11 @@ func main() {
 
 // segment is a piece of the status bar with a priority.
 // Lower priority number = higher importance (dropped last).
+// Static segments are always visible; non-static ones rotate in the marquee.
 type segment struct {
 	text     string
-	priority int // 0=core, 1=your drivers, 2=leader, 3=weather
+	priority int  // 0=core, 1=your drivers, 2=leader, 3=weather
+	static   bool // true = pinned visible, false = part of marquee rotation
 }
 
 func runStatus(cfg config.Config, drivers []int, width int, marquee bool) {
@@ -80,7 +82,7 @@ func runStatus(cfg config.Config, drivers []int, width int, marquee bool) {
 		segments = liveSegments(live, drivers)
 		if cfg.Weather {
 			if ws := weatherSuffix(live.TrackID); ws != "" {
-				segments = append(segments, segment{ws, 3})
+				segments = append(segments, segment{ws, 3, false})
 			}
 		}
 	} else {
@@ -104,21 +106,17 @@ func runStatus(cfg config.Config, drivers []int, width int, marquee bool) {
 		segments = scheduleSegments(race, primary)
 		if cfg.Weather {
 			if ws := weatherSuffix(race.TrackID); ws != "" {
-				segments = append(segments, segment{ws, 3})
+				segments = append(segments, segment{ws, 3, false})
 			}
 		}
 	}
 
-	assembleWidth := width
-	if marquee {
-		assembleWidth = 0
-	}
-	s := assembleSegments(segments, assembleWidth)
-
-	if width > 0 {
-		if marquee {
-			s = ui.MarqueeText(s, width, cfg.MarqueeSpeed, cfg.MarqueeSeparator)
-		} else {
+	var s string
+	if marquee && width > 0 {
+		s = assembleHybrid(segments, width, cfg.MarqueeSpeed, cfg.MarqueeSeparator)
+	} else {
+		s = assembleSegments(segments, width)
+		if width > 0 {
 			s = ui.PadToWidth(s, width)
 		}
 	}
@@ -158,6 +156,51 @@ func assembleSegments(segs []segment, width int) string {
 	return ""
 }
 
+// assembleHybrid renders static segments in place and scrolls the rest via marquee.
+// If static segments alone exceed width, lower-priority static segments are dropped.
+func assembleHybrid(segs []segment, width, speed int, sep string) string {
+	var statics, dynamics []segment
+	for _, s := range segs {
+		if s.static {
+			statics = append(statics, s)
+		} else {
+			dynamics = append(dynamics, s)
+		}
+	}
+
+	// Build static text, dropping lowest-priority statics if over budget
+	staticText := joinSegments(statics)
+	for maxPri := 3; runewidth.StringWidth(staticText) > width && maxPri >= 0; maxPri-- {
+		var kept []segment
+		for _, s := range statics {
+			if s.priority <= maxPri {
+				kept = append(kept, s)
+			}
+		}
+		statics = kept
+		staticText = joinSegments(statics)
+	}
+
+	spacer := " | "
+	spacerWidth := runewidth.StringWidth(spacer)
+	remaining := width - runewidth.StringWidth(staticText) - spacerWidth
+	if remaining <= 0 || len(dynamics) == 0 {
+		return ui.PadToWidth(staticText, width)
+	}
+
+	dynText := joinSegments(dynamics)
+	marqueed := ui.MarqueeText(dynText, remaining, speed, sep)
+	return staticText + spacer + marqueed
+}
+
+func joinSegments(segs []segment) string {
+	var parts []string
+	for _, s := range segs {
+		parts = append(parts, s.text)
+	}
+	return strings.Join(parts, "")
+}
+
 func weatherSuffix(trackID int) string {
 	if trackID == 0 {
 		return ""
@@ -176,16 +219,17 @@ func weatherSuffix(trackID int) string {
 func liveSegments(feed *nascar.LiveFeed, drivers []int) []segment {
 	flagSym := nascar.FlagSymbol(feed.FlagState)
 	segs := []segment{
-		{fmt.Sprintf("%s %s | Lap %d/%d", flagSym, feed.RunName, feed.LapNumber, feed.LapsInRace), 0},
+		{fmt.Sprintf("%s %s", flagSym, feed.RunName), 0, true},
+		{fmt.Sprintf(" | Lap %d/%d", feed.LapNumber, feed.LapsInRace), 0, false},
 	}
 
 	if leader := feed.Leader(); leader != nil {
 		segs = append(segs, segment{
-			fmt.Sprintf(" | P1 #%s %s", leader.VehicleNumber, leader.Driver.LastName), 2,
+			fmt.Sprintf(" | P1 #%s %s", leader.VehicleNumber, leader.Driver.LastName), 2, false,
 		})
 	}
 
-	for _, d := range drivers {
+	for i, d := range drivers {
 		carNum := strconv.Itoa(d)
 		if v := feed.FindDriver(carNum); v != nil {
 			diff := v.RunningPosition - v.StartingPosition
@@ -196,7 +240,7 @@ func liveSegments(feed *nascar.LiveFeed, drivers []int) []segment {
 				diffStr = fmt.Sprintf(" [%d]", diff)
 			}
 			segs = append(segs, segment{
-				fmt.Sprintf(" | #%s %s P%d%s", v.VehicleNumber, v.Driver.LastName, v.RunningPosition, diffStr), 1,
+				fmt.Sprintf(" | #%s %s P%d%s", v.VehicleNumber, v.Driver.LastName, v.RunningPosition, diffStr), 1, i == 0,
 			})
 		}
 	}
@@ -207,7 +251,7 @@ func liveSegments(feed *nascar.LiveFeed, drivers []int) []segment {
 func scheduleSegments(race *nascar.Race, driverNum int) []segment {
 	start, err := race.RaceStartUTC()
 	if err != nil {
-		return []segment{{race.RaceName, 0}}
+		return []segment{{race.RaceName, 0, true}}
 	}
 
 	local := start.Local()
@@ -224,13 +268,14 @@ func scheduleSegments(race *nascar.Race, driverNum int) []segment {
 	}
 
 	segs := []segment{
-		{fmt.Sprintf("🏁 %s | %s", race.RaceName, timeStr), 0},
+		{fmt.Sprintf("🏁 %s", race.RaceName), 0, true},
+		{fmt.Sprintf(" | %s", timeStr), 0, false},
 	}
 	if race.TelevisionBroadcaster != "" {
-		segs = append(segs, segment{fmt.Sprintf(" | %s", race.TelevisionBroadcaster), 2})
+		segs = append(segs, segment{fmt.Sprintf(" | %s", race.TelevisionBroadcaster), 2, false})
 	}
 	if driverNum > 0 {
-		segs = append(segs, segment{fmt.Sprintf(" | #%d", driverNum), 1})
+		segs = append(segs, segment{fmt.Sprintf(" | #%d", driverNum), 1, true})
 	}
 	return segs
 }

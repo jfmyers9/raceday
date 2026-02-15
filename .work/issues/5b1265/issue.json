@@ -1,0 +1,14 @@
+{
+  "id": "5b1265",
+  "title": "Phase 3: Segment prioritization",
+  "status": "done",
+  "type": "feature",
+  "priority": 2,
+  "labels": [
+    "marquee-rotation"
+  ],
+  "parent_id": "914f97",
+  "created": "2026-02-15T22:12:17.226735Z",
+  "updated": "2026-02-15T22:16:49.853347Z",
+  "description": "## Acceptance Criteria"
+}

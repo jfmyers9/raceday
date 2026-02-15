@@ -1,0 +1,14 @@
+{
+  "id": "e45eed",
+  "title": "Phase 5: Tests",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "marquee-rotation"
+  ],
+  "parent_id": "914f97",
+  "created": "2026-02-15T22:12:20.133086Z",
+  "updated": "2026-02-15T22:17:30.306845Z",
+  "description": "## Acceptance Criteria"
+}

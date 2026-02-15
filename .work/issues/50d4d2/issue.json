@@ -1,0 +1,13 @@
+{
+  "id": "50d4d2",
+  "title": "Explore: marquee-style status bar rotation",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "explore"
+  ],
+  "created": "2026-02-15T22:09:10.211124Z",
+  "updated": "2026-02-15T22:12:27.767153Z",
+  "description": "## Status Bar Marquee Rotation"
+}

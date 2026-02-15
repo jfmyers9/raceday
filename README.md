@@ -22,9 +22,10 @@ go build -o raceday ./cmd/raceday/
 Add to your `.tmux.conf`:
 
 ```tmux
-# Status bar — shows live race or next scheduled race
-set -g status-right '#(raceday --status --driver 9)'
-set -g status-interval 10
+# Status bar — marquee scrolls long text within 60 columns
+set -g status-right '#(raceday --status --width 60 --marquee)'
+set -g status-interval 5
+set -g status-right-length 60
 
 # Full TUI — press prefix + r for interactive leaderboard
 bind r display-popup -E -w 80% -h 80% "raceday --driver 9"
@@ -37,8 +38,10 @@ Replace `9` with your favorite driver's car number.
 ### Status bar mode
 
 ```bash
-raceday --status                # next race or live status
-raceday --status --driver 24    # include driver position
+raceday --status                          # next race or live status
+raceday --status --driver 24              # include driver position
+raceday --status --width 60               # truncate to 60 columns
+raceday --status --width 60 --marquee     # scroll long text
 ```
 
 When no race is live:
@@ -93,15 +96,30 @@ This creates `~/.config/raceday/config.yaml`:
 drivers:
   - 9
   - 24
-series: 1           # 1=Cup, 2=Xfinity, 3=Trucks
+series: 1               # 1=Cup, 2=Xfinity, 3=Trucks
 theme: default
+weather: true
+status_width: 60        # fixed width for --status mode (0=unlimited)
+marquee: true           # scroll long status text
+marquee_speed: 2        # characters per second
+marquee_separator: " • "
 notify:
   cautions: true
   lead_changes: false
   desktop: false
 ```
 
-The `--driver` flag overrides the config file.
+The `--driver` flag overrides the config file. The `--width` and
+`--marquee` flags override the corresponding config values.
+
+When width is set, segments are prioritized: core race info and
+your driver's position are kept, while leader and weather data
+are dropped first if the line is too long. Marquee scrolling
+activates only after low-priority segments have been removed.
+
+Marquee speed tuning: `speed × status-interval = chars per
+refresh`. With `speed: 2` and `status-interval 5`, text advances
+10 characters per tmux refresh.
 
 ## Data Source
 

@@ -8,11 +8,15 @@ import (
 )
 
 type Config struct {
-	Drivers []int  `yaml:"drivers"`
-	Series  int    `yaml:"series"`
-	Theme   string `yaml:"theme"`
-	Weather bool   `yaml:"weather"`
-	Notify  Notify `yaml:"notify"`
+	Drivers          []int  `yaml:"drivers"`
+	Series           int    `yaml:"series"`
+	Theme            string `yaml:"theme"`
+	Weather          bool   `yaml:"weather"`
+	Notify           Notify `yaml:"notify"`
+	StatusWidth      int    `yaml:"status_width"`
+	Marquee          bool   `yaml:"marquee"`
+	MarqueeSpeed     int    `yaml:"marquee_speed"`
+	MarqueeSeparator string `yaml:"marquee_separator"`
 }
 
 type Notify struct {
@@ -23,9 +27,11 @@ type Notify struct {
 
 func DefaultConfig() Config {
 	return Config{
-		Series:  1, // Cup Series
-		Theme:   "default",
-		Weather: true,
+		Series:           1, // Cup Series
+		Theme:            "default",
+		Weather:          true,
+		MarqueeSpeed:     2,
+		MarqueeSeparator: " • ",
 		Notify: Notify{
 			Cautions:    true,
 			LeadChanges: false,

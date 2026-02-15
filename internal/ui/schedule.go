@@ -7,9 +7,10 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/jfmyers/tmux-raceday/internal/nascar"
+	"github.com/jfmyers/tmux-raceday/internal/weather"
 )
 
-func renderScheduleView(race *nascar.Race, width int) string {
+func renderScheduleView(race *nascar.Race, w *weather.Conditions, width int) string {
 	if race == nil {
 		return "No race schedule available."
 	}
@@ -18,7 +19,12 @@ func renderScheduleView(race *nascar.Race, width int) string {
 
 	title := titleStyle.Render(fmt.Sprintf("📅 %s — %s", race.RaceName, race.TrackName))
 	b.WriteString(title)
-	b.WriteString("\n\n")
+	b.WriteString("\n")
+	if w != nil {
+		b.WriteString(dimStyle.Render(fmt.Sprintf("  %s %.0f°F  💨 %.0fmph", weather.Symbol(w.WeatherCode), w.Temp, w.WindSpeed)))
+		b.WriteString("\n")
+	}
+	b.WriteString("\n")
 
 	now := time.Now().UTC()
 

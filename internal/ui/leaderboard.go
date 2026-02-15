@@ -11,6 +11,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/jfmyers/tmux-raceday/internal/nascar"
+	"github.com/jfmyers/tmux-raceday/internal/weather"
 )
 
 var (
@@ -46,6 +47,8 @@ var (
 
 type tickMsg time.Time
 type feedMsg *nascar.LiveFeed
+type weatherMsg *weather.Conditions
+type weatherTickMsg time.Time
 type errMsg error
 
 // View modes
@@ -60,6 +63,7 @@ type Model struct {
 	feed       *nascar.LiveFeed
 	race       *nascar.Race // schedule data for weekend view
 	standings  []nascar.PointsEntry
+	weather    *weather.Conditions
 	favDriver  string
 	cursor     int
 	offset     int
@@ -90,7 +94,7 @@ type scheduleMsg *nascar.Race
 type standingsMsg []nascar.PointsEntry
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(fetchFeed, fetchSchedule, fetchStandings, tickCmd())
+	return tea.Batch(fetchFeed, fetchSchedule, fetchStandings, tickCmd(), weatherTickCmd())
 }
 
 func fetchSchedule() tea.Msg {
@@ -128,6 +132,36 @@ func fetchFeed() tea.Msg {
 	return feedMsg(feed)
 }
 
+func weatherTickCmd() tea.Cmd {
+	return tea.Tick(5*time.Minute, func(t time.Time) tea.Msg {
+		return weatherTickMsg(t)
+	})
+}
+
+func fetchWeatherCmd(trackID int) tea.Cmd {
+	return func() tea.Msg {
+		lat, lon, ok := nascar.TrackCoords(trackID)
+		if !ok {
+			return weatherMsg(nil)
+		}
+		cond, err := weather.FetchCurrent(lat, lon)
+		if err != nil {
+			return weatherMsg(nil)
+		}
+		return weatherMsg(cond)
+	}
+}
+
+func (m Model) weatherTrackID() int {
+	if m.feed != nil && m.feed.TrackID != 0 {
+		return m.feed.TrackID
+	}
+	if m.race != nil && m.race.TrackID != 0 {
+		return m.race.TrackID
+	}
+	return 0
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -140,6 +174,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case feedMsg:
 		m.feed = msg
 		m.err = nil
+		if m.weather == nil && msg != nil && msg.TrackID != 0 {
+			return m, fetchWeatherCmd(msg.TrackID)
+		}
+
+	case weatherMsg:
+		m.weather = msg
+
+	case weatherTickMsg:
+		trackID := m.weatherTrackID()
+		if trackID != 0 {
+			return m, tea.Batch(fetchWeatherCmd(trackID), weatherTickCmd())
+		}
+		return m, weatherTickCmd()
 
 	case scheduleMsg:
 		m.race = msg
@@ -338,7 +385,7 @@ func (m Model) View() string {
 	var content string
 	switch m.activeView {
 	case ViewSchedule:
-		content = renderScheduleView(m.race, m.width)
+		content = renderScheduleView(m.race, m.weather, m.width)
 	case ViewEntryList:
 		content = renderEntryListView(m.feed, m.favDriver, m.width)
 	case ViewStandings:
@@ -400,6 +447,14 @@ func (m Model) renderTitle() string {
 		m.feed.Stage.StageNum, stageLapsLeft,
 		flagName,
 		m.feed.NumberOfCautions, m.feed.NumberOfCautionLaps, m.feed.NumberOfLeadChanges)
+
+	if m.weather != nil {
+		info += fmt.Sprintf(" | %.0f°F (feels %.0f°F) %s %.0fmph %s",
+			m.weather.Temp, m.weather.FeelsLike,
+			weather.Symbol(m.weather.WeatherCode),
+			m.weather.WindSpeed,
+			weather.WindDirectionArrow(m.weather.WindDirection))
+	}
 
 	return title + "\n" + dimStyle.Render(info)
 }

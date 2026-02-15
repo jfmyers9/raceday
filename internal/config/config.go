@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	Drivers  []int  `yaml:"drivers"`
-	Series   int    `yaml:"series"`
-	Theme    string `yaml:"theme"`
-	Notify   Notify `yaml:"notify"`
+	Drivers []int  `yaml:"drivers"`
+	Series  int    `yaml:"series"`
+	Theme   string `yaml:"theme"`
+	Weather bool   `yaml:"weather"`
+	Notify  Notify `yaml:"notify"`
 }
 
 type Notify struct {
@@ -22,8 +23,9 @@ type Notify struct {
 
 func DefaultConfig() Config {
 	return Config{
-		Series: 1, // Cup Series
-		Theme:  "default",
+		Series:  1, // Cup Series
+		Theme:   "default",
+		Weather: true,
 		Notify: Notify{
 			Cautions:    true,
 			LeadChanges: false,

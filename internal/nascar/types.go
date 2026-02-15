@@ -12,6 +12,7 @@ type Race struct {
 	RaceSeason            int             `json:"race_season"`
 	RaceName              string          `json:"race_name"`
 	RaceTypeID            int             `json:"race_type_id"`
+	TrackID               int             `json:"track_id"`
 	TrackName             string          `json:"track_name"`
 	DateScheduled         string          `json:"date_scheduled"`
 	ScheduledLaps         int             `json:"scheduled_laps"`

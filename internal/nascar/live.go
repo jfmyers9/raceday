@@ -16,6 +16,7 @@ type LiveFeed struct {
 	LapsToGo               int       `json:"laps_to_go"`
 	FlagState              int       `json:"flag_state"`
 	RaceID                 int       `json:"race_id"`
+	TrackID                int       `json:"track_id"`
 	RunType                int       `json:"run_type"`
 	SeriesID               int       `json:"series_id"`
 	TrackName              string    `json:"track_name"`

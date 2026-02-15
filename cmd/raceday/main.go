@@ -12,11 +12,13 @@ import (
 	"github.com/jfmyers/tmux-raceday/internal/config"
 	"github.com/jfmyers/tmux-raceday/internal/nascar"
 	"github.com/jfmyers/tmux-raceday/internal/ui"
+	"github.com/jfmyers/tmux-raceday/internal/weather"
 )
 
 func main() {
 	status := flag.Bool("status", false, "Print one-line status for tmux status bar")
 	driver := flag.Int("driver", 0, "Favorite driver car number (overrides config)")
+	noWeather := flag.Bool("no-weather", false, "Disable weather data")
 	initCfg := flag.Bool("init-config", false, "Create default config file")
 	flag.Parse()
 
@@ -27,6 +29,9 @@ func main() {
 	}
 
 	cfg := config.Load()
+	if *noWeather {
+		cfg.Weather = false
+	}
 
 	// CLI --driver overrides config
 	drivers := cfg.Drivers
@@ -35,7 +40,7 @@ func main() {
 	}
 
 	if *status {
-		runStatus(drivers)
+		runStatus(cfg, drivers)
 		return
 	}
 
@@ -52,15 +57,17 @@ func main() {
 	}
 }
 
-func runStatus(drivers []int) {
-	// Try live feed first
+func runStatus(cfg config.Config, drivers []int) {
 	live, err := nascar.FetchLiveFeed()
 	if err == nil && live.IsLiveCupRace() {
-		fmt.Print(formatLiveStatus(live, drivers))
+		s := formatLiveStatus(live, drivers)
+		if cfg.Weather {
+			s += weatherSuffix(live.TrackID)
+		}
+		fmt.Print(s)
 		return
 	}
 
-	// Fall back to schedule
 	year := time.Now().Year()
 	races, err := nascar.FetchCupSchedule(year)
 	if err != nil {
@@ -78,7 +85,26 @@ func runStatus(drivers []int) {
 	if len(drivers) > 0 {
 		primary = drivers[0]
 	}
-	fmt.Print(formatScheduleStatus(race, primary))
+	s := formatScheduleStatus(race, primary)
+	if cfg.Weather {
+		s += weatherSuffix(race.TrackID)
+	}
+	fmt.Print(s)
+}
+
+func weatherSuffix(trackID int) string {
+	if trackID == 0 {
+		return ""
+	}
+	lat, lon, ok := nascar.TrackCoords(trackID)
+	if !ok {
+		return ""
+	}
+	c, err := weather.FetchCurrent(lat, lon)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf(" | %.0f°F %s %.0fmph %s", c.Temp, weather.Symbol(c.WeatherCode), c.WindSpeed, weather.WindDirectionArrow(c.WindDirection))
 }
 
 func formatLiveStatus(feed *nascar.LiveFeed, drivers []int) string {

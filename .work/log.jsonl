@@ -75,3 +75,14 @@
 {"id":"127b10","title":"Plan: conditional weather display","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:32:42Z","closed":"2026-02-16T05:37:39Z"}
 {"id":"f1fe1b","title":"Phase 4: Handle just-finished edge case","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:33:01Z","closed":"2026-02-16T05:37:44Z"}
 {"id":"029cc5","title":"Phase 5: Fix TUI weather for F1","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:33:05Z","closed":"2026-02-16T05:37:53Z"}
+{"id":"914f97","title":"Plan: Status bar marquee rotation","type":"chore","status":"done","labels":["marquee-rotation"],"created":"2026-02-15T22:12:08.625373Z","closed":"2026-02-16T19:31:15.207126Z"}
+{"id":"9bb7fe","title":"Plan: static+marquee hybrid layout","type":"chore","status":"done","labels":["marquee-hybrid"],"created":"2026-02-15T22:45:05.267451Z","closed":"2026-02-16T19:31:16.393Z"}
+{"id":"bc7108","title":"Plan: static lap count","type":"chore","status":"done","labels":["static-lap-count"],"created":"2026-02-15T23:01:57.32491Z","closed":"2026-02-16T19:31:17.473898Z"}
+{"id":"c9ee8f","title":"Plan: static-marquee spacer","type":"chore","status":"done","labels":["static-marquee-spacer"],"created":"2026-02-15T22:52:19.711952Z","closed":"2026-02-16T19:31:18.5069Z"}
+{"id":"bb9fb6","title":"Explore: NASCAR race still reporting live after completion","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T19:30:35.314607Z","closed":"2026-02-16T19:38:48.730546Z"}
+{"id":"e5a077","title":"Phase 1: Add finished-race detection","type":"chore","status":"done","labels":["nascar-post-race"],"created":"2026-02-16T19:38:21.405991Z","closed":"2026-02-16T19:42:00.332629Z"}
+{"id":"f6c7ec","title":"Phase 2: Add time-based grace period cutoff","type":"chore","status":"done","labels":["nascar-post-race"],"created":"2026-02-16T19:38:27.995459Z","closed":"2026-02-16T19:43:19.940441Z"}
+{"id":"2e40f7","title":"Phase 3: Status bar post-race formatting","type":"chore","status":"done","labels":["nascar-post-race"],"created":"2026-02-16T19:38:33.654567Z","closed":"2026-02-16T19:44:59.786179Z"}
+{"id":"bd91e5","title":"Phase 4: Handle stale-CDN edge case","type":"chore","status":"done","labels":["nascar-post-race"],"created":"2026-02-16T19:38:38.666416Z","closed":"2026-02-16T19:44:59.799763Z"}
+{"id":"4e5d06","title":"Phase 5: Unify pattern with F1","type":"chore","status":"done","labels":["nascar-post-race"],"created":"2026-02-16T19:38:44.422172Z","closed":"2026-02-16T19:47:53.319568Z"}
+{"id":"79114d","title":"Plan: NASCAR post-race detection and grace period","type":"chore","status":"done","labels":["nascar-post-race"],"created":"2026-02-16T19:38:14.792115Z","closed":"2026-02-16T19:47:53.33362Z"}

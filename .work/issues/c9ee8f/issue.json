@@ -1,12 +1,1 @@
-{
-  "id": "c9ee8f",
-  "title": "Plan: static-marquee spacer",
-  "status": "open",
-  "type": "chore",
-  "priority": 2,
-  "labels": [
-    "static-marquee-spacer"
-  ],
-  "created": "2026-02-15T22:52:19.711952Z",
-  "updated": "2026-02-15T22:52:19.711952Z"
-}
+{"id":"c9ee8f","title":"Plan: static-marquee spacer","status":"done","type":"chore","priority":2,"labels":["static-marquee-spacer"],"created":"2026-02-15T22:52:19.711952Z","updated":"2026-02-16T19:31:18.5069Z"}

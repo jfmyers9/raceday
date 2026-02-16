@@ -69,6 +69,9 @@ func (s *F1Series) FetchSchedule(year int) ([]series.Race, error) {
 	return races, nil
 }
 
+// timeNow is a seam for testing time-dependent behavior.
+var timeNow = time.Now
+
 func (s *F1Series) FetchLiveState() (*series.LiveState, error) {
 	sess, err := FetchLatestSession()
 	if err != nil {
@@ -78,8 +81,14 @@ func (s *F1Series) FetchLiveState() (*series.LiveState, error) {
 		return nil, nil
 	}
 
+	now := timeNow()
 	endTime, _ := time.Parse(time.RFC3339, sess.DateEnd)
-	if !endTime.IsZero() && endTime.Before(time.Now()) {
+	pastEnd := !endTime.IsZero() && endTime.Before(now)
+
+	// After the session end time, keep showing results for a grace period
+	// so viewers see the final standings. Once the grace period expires,
+	// stop returning live state.
+	if pastEnd && now.After(endTime.Add(series.PostRaceGracePeriod)) {
 		return nil, nil
 	}
 
@@ -166,6 +175,9 @@ func (s *F1Series) FetchLiveState() (*series.LiveState, error) {
 		leader = driverList[0]
 	}
 
+	// Race is finished if chequered flag appeared or session end time passed.
+	finished := flagName == "CHEQUERED" || pastEnd
+
 	return &series.LiveState{
 		SeriesName: s.Name(),
 		ShortName:  s.ShortName(),
@@ -175,6 +187,7 @@ func (s *F1Series) FetchLiveState() (*series.LiveState, error) {
 		TotalLaps:  0,
 		FlagSymbol: flagSymbol,
 		FlagName:   flagName,
+		Finished:   finished,
 		Leader:     leader,
 		Positions:  driverList,
 		Lat:        lat,

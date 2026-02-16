@@ -3,9 +3,15 @@ package nascar
 import (
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/jfmyers/tmux-raceday/internal/series"
 )
+
+const estimatedRaceDuration = 4 * time.Hour
+
+// timeNow is a seam for testing time-dependent behavior.
+var timeNow = time.Now
 
 // NASCARSeries implements series.Series for the NASCAR Cup Series.
 type NASCARSeries struct{}
@@ -51,6 +57,10 @@ func (s *NASCARSeries) FetchLiveState() (*series.LiveState, error) {
 		return nil, nil
 	}
 
+	if feed.IsFinished() && s.raceOver(feed.RaceID) {
+		return nil, nil
+	}
+
 	state := &series.LiveState{
 		SeriesName: s.Name(),
 		ShortName:  s.ShortName(),
@@ -60,6 +70,7 @@ func (s *NASCARSeries) FetchLiveState() (*series.LiveState, error) {
 		TotalLaps:  feed.LapsInRace,
 		FlagSymbol: FlagSymbol(feed.FlagState),
 		FlagName:   flagName(feed.FlagState),
+		Finished:   feed.IsFinished(),
 	}
 
 	if lat, lon, ok := TrackCoords(feed.TrackID); ok {
@@ -91,6 +102,41 @@ func vehicleToDriver(v *Vehicle) series.Driver {
 		Position: v.RunningPosition,
 		Delta:    float64(v.RunningPosition - v.StartingPosition),
 	}
+}
+
+func scheduleCacheKey() string {
+	return fmt.Sprintf("schedule_%d.json", timeNow().Year())
+}
+
+// raceOver returns true when we should stop displaying a finished race.
+// Two independent signals: time-based grace period elapsed, or the schedule
+// API confirms a winner (WinnerDriverID set). Either is sufficient when
+// combined with IsFinished from the live feed.
+//
+// On first call after the race finishes, the schedule cache is invalidated
+// so the next fetch can pick up WinnerDriverID from the API.
+func (s *NASCARSeries) raceOver(raceID int) bool {
+	invalidateCache(scheduleCacheKey())
+
+	year := timeNow().Year()
+	races, err := FetchCupSchedule(year)
+	if err != nil {
+		return false
+	}
+	for _, r := range races {
+		if r.RaceID == raceID {
+			if r.IsComplete() {
+				return true
+			}
+			start, err := r.RaceStartUTC()
+			if err != nil {
+				return false
+			}
+			cutoff := start.Add(estimatedRaceDuration + series.PostRaceGracePeriod)
+			return timeNow().UTC().After(cutoff)
+		}
+	}
+	return false
 }
 
 func flagName(state int) string {

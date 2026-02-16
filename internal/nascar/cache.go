@@ -37,6 +37,11 @@ func readCache(key string) ([]byte, bool) {
 	return data, true
 }
 
+// invalidateCache removes a cache entry so the next fetch hits the API.
+func invalidateCache(key string) {
+	_ = os.Remove(cachePath(key))
+}
+
 // writeCache stores data to the cache file.
 func writeCache(key string, data []byte) error {
 	dir := cacheDir()

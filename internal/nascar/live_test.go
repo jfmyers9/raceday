@@ -48,3 +48,50 @@ func TestIsLiveCupRace(t *testing.T) {
 		})
 	}
 }
+
+func TestIsFinished(t *testing.T) {
+	tests := []struct {
+		name string
+		feed LiveFeed
+		want bool
+	}{
+		{
+			"checkered flag with zero laps to go",
+			LiveFeed{FlagState: FlagFinished, LapsToGo: 0},
+			true,
+		},
+		{
+			"checkered flag with laps remaining (overtime)",
+			LiveFeed{FlagState: FlagFinished, LapsToGo: 2},
+			false,
+		},
+		{
+			"white flag with all laps complete (CDN freeze)",
+			LiveFeed{FlagState: FlagWhite, LapsToGo: 0, LapNumber: 200, LapsInRace: 200},
+			true,
+		},
+		{
+			"white flag mid-race",
+			LiveFeed{FlagState: FlagWhite, LapsToGo: 1, LapNumber: 199, LapsInRace: 200},
+			false,
+		},
+		{
+			"green flag with zero laps to go but no lap data",
+			LiveFeed{FlagState: FlagGreen, LapsToGo: 0},
+			false,
+		},
+		{
+			"caution with laps remaining",
+			LiveFeed{FlagState: FlagCaution, LapsToGo: 50},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.feed.IsFinished()
+			if got != tt.want {
+				t.Errorf("IsFinished() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

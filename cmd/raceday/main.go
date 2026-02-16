@@ -249,18 +249,23 @@ func liveSegmentsFromState(state *series.LiveState, drivers []int, multiSeries b
 		prefix = state.ShortName + ": "
 	}
 
-	lapStr := fmt.Sprintf("Lap %d", state.CurrentLap)
-	if state.TotalLaps > 0 {
-		lapStr = fmt.Sprintf("Lap %d/%d", state.CurrentLap, state.TotalLaps)
-	}
-
-	flagPart := ""
-	if state.FlagSymbol != "" {
-		flagPart = state.FlagSymbol + " "
+	var header string
+	if state.Finished {
+		header = fmt.Sprintf("%s🏁 FINAL %s", prefix, state.RaceName)
+	} else {
+		lapStr := fmt.Sprintf("Lap %d", state.CurrentLap)
+		if state.TotalLaps > 0 {
+			lapStr = fmt.Sprintf("Lap %d/%d", state.CurrentLap, state.TotalLaps)
+		}
+		flagPart := ""
+		if state.FlagSymbol != "" {
+			flagPart = state.FlagSymbol + " "
+		}
+		header = fmt.Sprintf("%s%s%s | %s", prefix, flagPart, state.RaceName, lapStr)
 	}
 
 	segs := []segment{
-		{fmt.Sprintf("%s%s%s | %s", prefix, flagPart, state.RaceName, lapStr), 0, true},
+		{header, 0, true},
 	}
 
 	if state.Leader.Number != "" {

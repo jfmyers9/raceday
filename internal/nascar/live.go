@@ -173,6 +173,19 @@ func (f *LiveFeed) IsLiveCupRace() bool {
 	return f.RunType == 3 && f.SeriesID == 1 && f.LapNumber > 0
 }
 
+// IsFinished returns true when the race is truly complete.
+// Checks for checkered flag or all laps completed — the CDN
+// sometimes freezes on white flag and never transitions to checkered.
+func (f *LiveFeed) IsFinished() bool {
+	if f.LapsToGo > 0 {
+		return false
+	}
+	if f.FlagState == FlagFinished {
+		return true
+	}
+	return f.LapsInRace > 0 && f.LapNumber >= f.LapsInRace
+}
+
 // FindDriver returns the vehicle matching the given car number, or nil.
 func (f *LiveFeed) FindDriver(carNumber string) *Vehicle {
 	for i := range f.Vehicles {

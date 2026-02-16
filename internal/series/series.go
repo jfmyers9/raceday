@@ -2,6 +2,11 @@ package series
 
 import "time"
 
+// PostRaceGracePeriod is how long to keep displaying results after a race
+// finishes. Both NASCAR and F1 use this to show final standings before the
+// live state goes away.
+const PostRaceGracePeriod = 90 * time.Minute
+
 // Race represents a scheduled race from any series.
 type Race struct {
 	SeriesName  string
@@ -36,6 +41,7 @@ type LiveState struct {
 	TotalLaps  int // 0 if unknown (e.g. F1 timed sessions)
 	FlagSymbol string
 	FlagName   string
+	Finished   bool
 	Leader     Driver
 	Positions  []Driver
 	Lat, Lon   float64

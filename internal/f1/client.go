@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const baseURL = "https://api.openf1.org/v1"
+var baseURL = "https://api.openf1.org/v1"
 
 var httpClient = &http.Client{Timeout: 10 * time.Second}
 

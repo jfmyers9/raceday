@@ -106,7 +106,7 @@ func runStatus(cfg config.Config, drivers []int, width int, marquee bool) {
 
 	if liveState != nil {
 		segments = liveSegmentsFromState(liveState, drivers, multiSeries)
-		if cfg.Weather {
+		if cfg.Weather && shouldShowWeather(time.Time{}, true, time.Duration(cfg.WeatherWindow)) {
 			if ws := weatherSuffixFromCoords(liveState.Lat, liveState.Lon); ws != "" {
 				segments = append(segments, segment{ws, 3, false})
 			}
@@ -123,7 +123,7 @@ func runStatus(cfg config.Config, drivers []int, width int, marquee bool) {
 			primary = drivers[0]
 		}
 		segments = scheduleSegmentsFromRace(race, primary, multiSeries)
-		if cfg.Weather {
+		if cfg.Weather && shouldShowWeather(race.StartTime, false, time.Duration(cfg.WeatherWindow)) {
 			if ws := weatherSuffixFromCoords(race.Lat, race.Lon); ws != "" {
 				segments = append(segments, segment{ws, 3, false})
 			}
@@ -218,6 +218,18 @@ func joinSegments(segs []segment) string {
 		parts = append(parts, s.text)
 	}
 	return strings.Join(parts, "")
+}
+
+// shouldShowWeather returns true when weather data is relevant: always for
+// live sessions, and only within the configured window of start for scheduled races.
+func shouldShowWeather(startTime time.Time, isLive bool, window time.Duration) bool {
+	if isLive {
+		return true
+	}
+	if startTime.IsZero() {
+		return false
+	}
+	return time.Until(startTime) <= window
 }
 
 func weatherSuffixFromCoords(lat, lon float64) string {

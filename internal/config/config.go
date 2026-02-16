@@ -4,9 +4,26 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
+
+// Duration wraps time.Duration to support YAML string unmarshaling (e.g. "2h", "30m").
+type Duration time.Duration
+
+func (d *Duration) UnmarshalYAML(value *yaml.Node) error {
+	var s string
+	if err := value.Decode(&s); err != nil {
+		return err
+	}
+	parsed, err := time.ParseDuration(s)
+	if err != nil {
+		return fmt.Errorf("invalid duration %q: %w", s, err)
+	}
+	*d = Duration(parsed)
+	return nil
+}
 
 // SeriesList holds configured series names (e.g. "nascar", "f1").
 // Backward-compatible: unmarshals from int (old format) or string or []string.
@@ -58,7 +75,8 @@ type Config struct {
 	StatusWidth      int    `yaml:"status_width"`
 	Marquee          bool   `yaml:"marquee"`
 	MarqueeSpeed     int    `yaml:"marquee_speed"`
-	MarqueeSeparator string `yaml:"marquee_separator"`
+	MarqueeSeparator string   `yaml:"marquee_separator"`
+	WeatherWindow    Duration `yaml:"weather_window"`
 }
 
 type Notify struct {
@@ -73,6 +91,7 @@ func DefaultConfig() Config {
 		Drivers:          DriverMap{},
 		Theme:            "default",
 		Weather:          true,
+		WeatherWindow:    Duration(2 * time.Hour),
 		MarqueeSpeed:     2,
 		MarqueeSeparator: " • ",
 		Notify: Notify{

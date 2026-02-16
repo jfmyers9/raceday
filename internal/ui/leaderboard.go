@@ -166,10 +166,9 @@ func weatherTickCmd() tea.Cmd {
 	})
 }
 
-func fetchWeatherCmd(trackID int) tea.Cmd {
+func fetchWeatherCmd(lat, lon float64) tea.Cmd {
 	return func() tea.Msg {
-		lat, lon, ok := nascar.TrackCoords(trackID)
-		if !ok {
+		if lat == 0 && lon == 0 {
 			return weatherMsg(nil)
 		}
 		cond, err := weather.FetchCurrent(lat, lon)
@@ -180,14 +179,23 @@ func fetchWeatherCmd(trackID int) tea.Cmd {
 	}
 }
 
-func (m Model) weatherTrackID() int {
+func (m Model) weatherCoords() (float64, float64) {
 	if m.feed != nil && m.feed.TrackID != 0 {
-		return m.feed.TrackID
+		lat, lon, ok := nascar.TrackCoords(m.feed.TrackID)
+		if ok {
+			return lat, lon
+		}
+	}
+	if m.f1Live != nil {
+		return m.f1Live.Lat, m.f1Live.Lon
 	}
 	if m.race != nil && m.race.TrackID != 0 {
-		return m.race.TrackID
+		lat, lon, ok := nascar.TrackCoords(m.race.TrackID)
+		if ok {
+			return lat, lon
+		}
 	}
-	return 0
+	return 0, 0
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -200,19 +208,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(fetchFeed, fetchF1Live, tickCmd())
 
 	case feedMsg:
-		m.feed = msg
+		feed := (*nascar.LiveFeed)(msg)
+		m.feed = feed
 		m.err = nil
-		if m.weather == nil && msg != nil && msg.TrackID != 0 {
-			return m, fetchWeatherCmd(msg.TrackID)
+		if feed == nil || !feed.IsLiveCupRace() {
+			if m.f1Live == nil {
+				m.weather = nil
+			}
+		} else if m.weather == nil && feed.TrackID != 0 {
+			lat, lon, ok := nascar.TrackCoords(feed.TrackID)
+			if ok {
+				return m, fetchWeatherCmd(lat, lon)
+			}
 		}
 
 	case weatherMsg:
 		m.weather = msg
 
 	case weatherTickMsg:
-		trackID := m.weatherTrackID()
-		if trackID != 0 {
-			return m, tea.Batch(fetchWeatherCmd(trackID), weatherTickCmd())
+		lat, lon := m.weatherCoords()
+		if lat != 0 && lon != 0 && m.hasLiveRace() {
+			return m, tea.Batch(fetchWeatherCmd(lat, lon), weatherTickCmd())
 		}
 		return m, weatherTickCmd()
 
@@ -380,6 +396,10 @@ func (m *Model) findDriver(term string) {
 			return
 		}
 	}
+}
+
+func (m Model) hasLiveRace() bool {
+	return (m.feed != nil && m.feed.IsLiveCupRace()) || m.f1Live != nil
 }
 
 func (m *Model) autoDetectSeries() {

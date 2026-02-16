@@ -68,3 +68,10 @@
 {"id":"e58499","title":"Fix: config dir, doubled GP name, empty broadcaster","type":"bug","status":"done","labels":["fix"],"created":"2026-02-16T01:40:27.606658Z","closed":"2026-02-16T01:40:52.013098Z"}
 {"id":"bec14f","title":"Phase 1: Fix config dir, doubled GP name, empty broadcaster","type":"bug","status":"done","labels":["config-fix"],"created":"2026-02-16T01:40:48.33893Z","closed":"2026-02-16T01:41:59.13279Z"}
 {"id":"1e0418","title":"Plan: fix config dir, GP name, empty broadcaster","type":"bug","status":"done","labels":["config-fix"],"created":"2026-02-16T01:40:41.290433Z","closed":"2026-02-16T01:41:59.148266Z"}
+{"id":"c05ed7","title":"Explore: conditional weather display","type":"chore","status":"done","labels":["explore"],"created":"2026-02-16T05:21:53Z","closed":"2026-02-16T05:33:09Z"}
+{"id":"aa35ef","title":"Phase 1: Weather proximity gate in status bar","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:32:47Z","closed":"2026-02-16T05:35:24Z"}
+{"id":"1355a8","title":"Phase 3: Apply same logic to TUI","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:32:56Z","closed":"2026-02-16T05:36:29Z"}
+{"id":"c4df70","title":"Phase 2: Make threshold configurable","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:32:52Z","closed":"2026-02-16T05:36:34Z"}
+{"id":"127b10","title":"Plan: conditional weather display","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:32:42Z","closed":"2026-02-16T05:37:39Z"}
+{"id":"f1fe1b","title":"Phase 4: Handle just-finished edge case","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:33:01Z","closed":"2026-02-16T05:37:44Z"}
+{"id":"029cc5","title":"Phase 5: Fix TUI weather for F1","type":"chore","status":"done","labels":["conditional-weather"],"created":"2026-02-16T05:33:05Z","closed":"2026-02-16T05:37:53Z"}

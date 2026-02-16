@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/mattn/go-runewidth"
 )
@@ -121,4 +122,33 @@ func TestAssembleHybrid(t *testing.T) {
 			t.Errorf("display width = %d, want 60", got)
 		}
 	})
+}
+
+func TestShouldShowWeather(t *testing.T) {
+	defaultWindow := 2 * time.Hour
+
+	tests := []struct {
+		name      string
+		startTime time.Time
+		isLive    bool
+		window    time.Duration
+		want      bool
+	}{
+		{"live race", time.Now().Add(24 * time.Hour), true, defaultWindow, true},
+		{"race starting in 30 min", time.Now().Add(30 * time.Minute), false, defaultWindow, true},
+		{"race starting in 1h59m", time.Now().Add(119 * time.Minute), false, defaultWindow, true},
+		{"race starting in 3 days", time.Now().Add(72 * time.Hour), false, defaultWindow, false},
+		{"zero time", time.Time{}, false, defaultWindow, false},
+		{"custom 30m window, race in 20m", time.Now().Add(20 * time.Minute), false, 30 * time.Minute, true},
+		{"custom 30m window, race in 1h", time.Now().Add(time.Hour), false, 30 * time.Minute, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := shouldShowWeather(tt.startTime, tt.isLive, tt.window)
+			if got != tt.want {
+				t.Errorf("shouldShowWeather(%v, %v, %v) = %v, want %v",
+					tt.startTime, tt.isLive, tt.window, got, tt.want)
+			}
+		})
+	}
 }

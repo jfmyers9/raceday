@@ -10,7 +10,9 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/jfmyers/tmux-raceday/internal/f1"
 	"github.com/jfmyers/tmux-raceday/internal/nascar"
+	"github.com/jfmyers/tmux-raceday/internal/series"
 	"github.com/jfmyers/tmux-raceday/internal/weather"
 )
 
@@ -51,12 +53,20 @@ type weatherMsg *weather.Conditions
 type weatherTickMsg time.Time
 type errMsg error
 
+// Series modes
+const (
+	SeriesNASCAR = iota
+	SeriesF1
+)
+
 // View modes
 const (
 	ViewLeaderboard = iota
 	ViewSchedule
 	ViewEntryList
 	ViewStandings
+	ViewF1Leaderboard
+	ViewF1Schedule
 )
 
 type Model struct {
@@ -75,7 +85,11 @@ type Model struct {
 	searchMode bool
 	searchTerm string
 	quitting   bool
-	activeView int
+	activeView   int
+	activeSeries int
+	seriesLocked bool // true once user manually switches series
+	f1Live       *series.LiveState
+	f1Schedule   []series.Race
 }
 
 func NewModel(driverNum int) Model {
@@ -92,9 +106,11 @@ func NewModel(driverNum int) Model {
 
 type scheduleMsg *nascar.Race
 type standingsMsg []nascar.PointsEntry
+type f1LiveStateMsg struct{ state *series.LiveState }
+type f1ScheduleMsg struct{ races []series.Race }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(fetchFeed, fetchSchedule, fetchStandings, tickCmd(), weatherTickCmd())
+	return tea.Batch(fetchFeed, fetchSchedule, fetchStandings, fetchF1Live, fetchF1Schedule, tickCmd(), weatherTickCmd())
 }
 
 func fetchSchedule() tea.Msg {
@@ -130,6 +146,18 @@ func fetchFeed() tea.Msg {
 		return errMsg(err)
 	}
 	return feedMsg(feed)
+}
+
+func fetchF1Live() tea.Msg {
+	s := f1.NewSeries()
+	state, _ := s.FetchLiveState()
+	return f1LiveStateMsg{state: state}
+}
+
+func fetchF1Schedule() tea.Msg {
+	s := f1.NewSeries()
+	races, _ := s.FetchSchedule(time.Now().Year())
+	return f1ScheduleMsg{races: races}
 }
 
 func weatherTickCmd() tea.Cmd {
@@ -169,7 +197,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 
 	case tickMsg:
-		return m, tea.Batch(fetchFeed, tickCmd())
+		return m, tea.Batch(fetchFeed, fetchF1Live, tickCmd())
 
 	case feedMsg:
 		m.feed = msg
@@ -193,6 +221,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case standingsMsg:
 		m.standings = msg
+
+	case f1LiveStateMsg:
+		m.f1Live = msg.state
+		if !m.seriesLocked {
+			m.autoDetectSeries()
+		}
+
+	case f1ScheduleMsg:
+		m.f1Schedule = msg.races
 
 	case errMsg:
 		m.err = msg
@@ -235,14 +272,28 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.sortCol = (m.sortCol + 1) % 4
 	case key.Matches(msg, keys.GotoFav):
 		m.jumpToFavorite()
+	case key.Matches(msg, keys.SwitchSeries):
+		m.switchSeries()
 	case key.Matches(msg, keys.View1):
-		m.activeView = ViewLeaderboard
+		if m.activeSeries == SeriesF1 {
+			m.activeView = ViewF1Leaderboard
+		} else {
+			m.activeView = ViewLeaderboard
+		}
 	case key.Matches(msg, keys.View2):
-		m.activeView = ViewSchedule
+		if m.activeSeries == SeriesF1 {
+			m.activeView = ViewF1Schedule
+		} else {
+			m.activeView = ViewSchedule
+		}
 	case key.Matches(msg, keys.View3):
-		m.activeView = ViewEntryList
+		if m.activeSeries == SeriesNASCAR {
+			m.activeView = ViewEntryList
+		}
 	case key.Matches(msg, keys.View4):
-		m.activeView = ViewStandings
+		if m.activeSeries == SeriesNASCAR {
+			m.activeView = ViewStandings
+		}
 	}
 	return m, nil
 }
@@ -268,27 +319,29 @@ func (m *Model) handleSearchKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 var keys = struct {
-	Quit    key.Binding
-	Up      key.Binding
-	Down    key.Binding
-	Search  key.Binding
-	Tab     key.Binding
-	GotoFav key.Binding
-	View1   key.Binding
-	View2   key.Binding
-	View3   key.Binding
-	View4   key.Binding
+	Quit         key.Binding
+	Up           key.Binding
+	Down         key.Binding
+	Search       key.Binding
+	Tab          key.Binding
+	GotoFav      key.Binding
+	SwitchSeries key.Binding
+	View1        key.Binding
+	View2        key.Binding
+	View3        key.Binding
+	View4        key.Binding
 }{
-	Quit:    key.NewBinding(key.WithKeys("q", "ctrl+c")),
-	Up:      key.NewBinding(key.WithKeys("k", "up")),
-	Down:    key.NewBinding(key.WithKeys("j", "down")),
-	Search:  key.NewBinding(key.WithKeys("/")),
-	Tab:     key.NewBinding(key.WithKeys("tab")),
-	GotoFav: key.NewBinding(key.WithKeys("f")),
-	View1:   key.NewBinding(key.WithKeys("1")),
-	View2:   key.NewBinding(key.WithKeys("2")),
-	View3:   key.NewBinding(key.WithKeys("3")),
-	View4:   key.NewBinding(key.WithKeys("4")),
+	Quit:         key.NewBinding(key.WithKeys("q", "ctrl+c")),
+	Up:           key.NewBinding(key.WithKeys("k", "up")),
+	Down:         key.NewBinding(key.WithKeys("j", "down")),
+	Search:       key.NewBinding(key.WithKeys("/")),
+	Tab:          key.NewBinding(key.WithKeys("tab")),
+	GotoFav:      key.NewBinding(key.WithKeys("f")),
+	SwitchSeries: key.NewBinding(key.WithKeys("s")),
+	View1:        key.NewBinding(key.WithKeys("1")),
+	View2:        key.NewBinding(key.WithKeys("2")),
+	View3:        key.NewBinding(key.WithKeys("3")),
+	View4:        key.NewBinding(key.WithKeys("4")),
 }
 
 func (m *Model) jumpToFavorite() {
@@ -326,6 +379,27 @@ func (m *Model) findDriver(term string) {
 			}
 			return
 		}
+	}
+}
+
+func (m *Model) autoDetectSeries() {
+	if m.f1Live != nil {
+		m.activeSeries = SeriesF1
+		m.activeView = ViewF1Leaderboard
+	} else if m.feed != nil && m.feed.IsLiveCupRace() {
+		m.activeSeries = SeriesNASCAR
+		m.activeView = ViewLeaderboard
+	}
+}
+
+func (m *Model) switchSeries() {
+	m.seriesLocked = true
+	if m.activeSeries == SeriesNASCAR {
+		m.activeSeries = SeriesF1
+		m.activeView = ViewF1Leaderboard
+	} else {
+		m.activeSeries = SeriesNASCAR
+		m.activeView = ViewLeaderboard
 	}
 }
 
@@ -375,15 +449,12 @@ func (m Model) View() string {
 		return ""
 	}
 
-	if m.feed == nil {
-		if m.err != nil {
-			return fmt.Sprintf("Error: %v\nPress q to quit.", m.err)
-		}
-		return "Loading race data..."
-	}
-
 	var content string
 	switch m.activeView {
+	case ViewF1Leaderboard:
+		content = renderF1LeaderboardView(m.f1Live, m.width)
+	case ViewF1Schedule:
+		content = renderF1ScheduleView(m.f1Schedule, m.width)
 	case ViewSchedule:
 		content = renderScheduleView(m.race, m.weather, m.width)
 	case ViewEntryList:
@@ -391,7 +462,13 @@ func (m Model) View() string {
 	case ViewStandings:
 		content = renderStandingsView(m.standings, m.favDriver, m.width)
 	default:
-		if !m.feed.IsLiveCupRace() {
+		if m.feed == nil {
+			if m.err != nil {
+				content = fmt.Sprintf("Error: %v\nPress q to quit.", m.err)
+			} else {
+				content = "Loading race data..."
+			}
+		} else if !m.feed.IsLiveCupRace() {
 			content = "No live Cup Series race."
 		} else {
 			content = m.renderLeaderboard()
@@ -586,14 +663,30 @@ func (m Model) renderRow(v nascar.Vehicle, selected bool) string {
 }
 
 func (m Model) renderStatusBar() string {
-	viewTabs := []string{"1:Race", "2:Schedule", "3:Entry", "4:Standings"}
-	for i := range viewTabs {
-		if i == m.activeView {
-			viewTabs[i] = "[" + viewTabs[i] + "]"
+	var viewTabs []string
+	if m.activeSeries == SeriesF1 {
+		viewTabs = []string{"1:Race", "2:Calendar"}
+		tabToView := []int{ViewF1Leaderboard, ViewF1Schedule}
+		for i := range viewTabs {
+			if m.activeView == tabToView[i] {
+				viewTabs[i] = "[" + viewTabs[i] + "]"
+			}
+		}
+	} else {
+		viewTabs = []string{"1:Race", "2:Schedule", "3:Entry", "4:Standings"}
+		for i := range viewTabs {
+			if i == m.activeView {
+				viewTabs[i] = "[" + viewTabs[i] + "]"
+			}
 		}
 	}
 
-	left := strings.Join(viewTabs, " ") + "  q:quit"
+	seriesLabel := "NASCAR"
+	if m.activeSeries == SeriesF1 {
+		seriesLabel = "F1"
+	}
+
+	left := fmt.Sprintf("[%s] %s  s:series  q:quit", seriesLabel, strings.Join(viewTabs, " "))
 	if m.activeView == ViewLeaderboard {
 		left += "  j/k:scroll  /:search  tab:sort  f:fav"
 	}
@@ -602,7 +695,7 @@ func (m Model) renderStatusBar() string {
 	}
 
 	right := ""
-	if m.favDriver != "" {
+	if m.activeSeries == SeriesNASCAR && m.favDriver != "" && m.feed != nil {
 		if v := m.feed.FindDriver(m.favDriver); v != nil {
 			right = fmt.Sprintf("#%s %s P%d", v.VehicleNumber, v.Driver.LastName, v.RunningPosition)
 		}

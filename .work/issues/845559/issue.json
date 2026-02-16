@@ -1,0 +1,12 @@
+{
+  "id": "845559",
+  "title": "Plan: multi-series support (F1 + IndyCar)",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "multi-series-support"
+  ],
+  "created": "2026-02-15T23:22:42.438905Z",
+  "updated": "2026-02-15T23:38:10.032915Z"
+}

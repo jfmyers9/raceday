@@ -1,0 +1,15 @@
+{
+  "id": "52f2b6",
+  "title": "Phase 5: Update config for multi-series",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "multi-series-support"
+  ],
+  "assignee": "worker-52f2b6",
+  "parent_id": "845559",
+  "created": "2026-02-15T23:22:54.24886Z",
+  "updated": "2026-02-15T23:32:06.565616Z",
+  "description": "## Acceptance Criteria"
+}

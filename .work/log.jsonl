@@ -56,3 +56,12 @@
 {"id":"9d366c","title":"Phase 2: Weather client","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:54.60301Z","closed":"2026-02-15T21:56:53.229789Z"}
 {"id":"b1343f","title":"Phase 1: Track coordinate lookup table","type":"feature","status":"done","labels":["weather-integration"],"created":"2026-02-15T21:52:48.327263Z","closed":"2026-02-15T21:55:33.008147Z"}
 {"id":"c0b36d","title":"Explore: weather data integration for race location","type":"feature","status":"done","labels":["explore"],"created":"2026-02-15T21:42:57.809067Z","closed":"2026-02-15T21:53:14.262914Z"}
+{"id":"5e7270","title":"Explore: multi-series support (F1 + IndyCar)","type":"chore","status":"done","labels":["explore"],"created":"2026-02-15T23:18:30.223701Z","closed":"2026-02-15T23:23:02.354048Z"}
+{"id":"350540","title":"Phase 1: Define the series abstraction","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:46.903396Z","closed":"2026-02-15T23:25:12.570978Z"}
+{"id":"affdca","title":"Phase 2: Wrap NASCAR as series implementation","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:48.703716Z","closed":"2026-02-15T23:26:32.944181Z"}
+{"id":"896841","title":"Phase 3: Build F1 client","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:51.796617Z","closed":"2026-02-15T23:27:59.60632Z"}
+{"id":"bb3dfe","title":"Phase 4: Multi-series status bar","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:53.032067Z","closed":"2026-02-15T23:30:23.167413Z"}
+{"id":"52f2b6","title":"Phase 5: Update config for multi-series","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:54.24886Z","closed":"2026-02-15T23:32:06.565616Z"}
+{"id":"dcf5e4","title":"Phase 6: F1 TUI views","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:55.601725Z","closed":"2026-02-15T23:35:38.803505Z"}
+{"id":"1166f4","title":"Phase 7: Polish and edge cases","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:57.53706Z","closed":"2026-02-15T23:37:45.881385Z"}
+{"id":"845559","title":"Plan: multi-series support (F1 + IndyCar)","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:42.438905Z","closed":"2026-02-15T23:38:10.032915Z"}

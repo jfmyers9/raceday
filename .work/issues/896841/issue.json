@@ -1,0 +1,15 @@
+{
+  "id": "896841",
+  "title": "Phase 3: Build F1 client",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "multi-series-support"
+  ],
+  "assignee": "worker-896841",
+  "parent_id": "845559",
+  "created": "2026-02-15T23:22:51.796617Z",
+  "updated": "2026-02-15T23:27:59.60632Z",
+  "description": "## Acceptance Criteria"
+}

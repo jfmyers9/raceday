@@ -10,7 +10,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/jfmyers/tmux-raceday/internal/config"
+	"github.com/jfmyers/tmux-raceday/internal/f1"
 	"github.com/jfmyers/tmux-raceday/internal/nascar"
+	"github.com/jfmyers/tmux-raceday/internal/series"
 	"github.com/jfmyers/tmux-raceday/internal/ui"
 	"github.com/jfmyers/tmux-raceday/internal/weather"
 	"github.com/mattn/go-runewidth"
@@ -36,8 +38,12 @@ func main() {
 		cfg.Weather = false
 	}
 
+	// Merge all driver numbers from config into flat list
+	var drivers []int
+	for _, name := range cfg.Series {
+		drivers = append(drivers, cfg.Drivers[name]...)
+	}
 	// CLI --driver overrides config
-	drivers := cfg.Drivers
 	if *driver > 0 {
 		drivers = []int{*driver}
 	}
@@ -75,25 +81,38 @@ type segment struct {
 }
 
 func runStatus(cfg config.Config, drivers []int, width int, marquee bool) {
+	var allSeries []series.Series
+	for _, name := range cfg.Series {
+		switch name {
+		case "nascar":
+			allSeries = append(allSeries, nascar.NewSeries())
+		case "f1":
+			allSeries = append(allSeries, f1.NewSeries())
+		}
+	}
+	multiSeries := len(allSeries) > 1
+
 	var segments []segment
 
-	live, err := nascar.FetchLiveFeed()
-	if err == nil && live.IsLiveCupRace() {
-		segments = liveSegments(live, drivers)
+	// Check each series for a live session.
+	var liveState *series.LiveState
+	for _, s := range allSeries {
+		st, err := s.FetchLiveState()
+		if err == nil && st != nil {
+			liveState = st
+			break
+		}
+	}
+
+	if liveState != nil {
+		segments = liveSegmentsFromState(liveState, drivers, multiSeries)
 		if cfg.Weather {
-			if ws := weatherSuffix(live.TrackID); ws != "" {
+			if ws := weatherSuffixFromCoords(liveState.Lat, liveState.Lon); ws != "" {
 				segments = append(segments, segment{ws, 3, false})
 			}
 		}
 	} else {
-		year := time.Now().Year()
-		races, err := nascar.FetchCupSchedule(year)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "raceday: %v\n", err)
-			os.Exit(1)
-		}
-
-		race := nascar.NextRace(races)
+		race := series.NextRaceAcrossAll(allSeries, time.Now())
 		if race == nil {
 			fmt.Print("No upcoming races")
 			return
@@ -103,9 +122,9 @@ func runStatus(cfg config.Config, drivers []int, width int, marquee bool) {
 		if len(drivers) > 0 {
 			primary = drivers[0]
 		}
-		segments = scheduleSegments(race, primary)
+		segments = scheduleSegmentsFromRace(race, primary, multiSeries)
 		if cfg.Weather {
-			if ws := weatherSuffix(race.TrackID); ws != "" {
+			if ws := weatherSuffixFromCoords(race.Lat, race.Lon); ws != "" {
 				segments = append(segments, segment{ws, 3, false})
 			}
 		}
@@ -201,12 +220,8 @@ func joinSegments(segs []segment) string {
 	return strings.Join(parts, "")
 }
 
-func weatherSuffix(trackID int) string {
-	if trackID == 0 {
-		return ""
-	}
-	lat, lon, ok := nascar.TrackCoords(trackID)
-	if !ok {
+func weatherSuffixFromCoords(lat, lon float64) string {
+	if lat == 0 && lon == 0 {
 		return ""
 	}
 	c, err := weather.FetchCurrent(lat, lon)
@@ -216,44 +231,64 @@ func weatherSuffix(trackID int) string {
 	return fmt.Sprintf(" | %.0f°F %s %.0fmph %s", c.Temp, weather.Symbol(c.WeatherCode), c.WindSpeed, weather.WindDirectionArrow(c.WindDirection))
 }
 
-func liveSegments(feed *nascar.LiveFeed, drivers []int) []segment {
-	flagSym := nascar.FlagSymbol(feed.FlagState)
-	segs := []segment{
-		{fmt.Sprintf("%s %s | Lap %d/%d", flagSym, feed.RunName, feed.LapNumber, feed.LapsInRace), 0, true},
+func liveSegmentsFromState(state *series.LiveState, drivers []int, multiSeries bool) []segment {
+	prefix := ""
+	if multiSeries {
+		prefix = state.ShortName + ": "
 	}
 
-	if leader := feed.Leader(); leader != nil {
+	lapStr := fmt.Sprintf("Lap %d", state.CurrentLap)
+	if state.TotalLaps > 0 {
+		lapStr = fmt.Sprintf("Lap %d/%d", state.CurrentLap, state.TotalLaps)
+	}
+
+	flagPart := ""
+	if state.FlagSymbol != "" {
+		flagPart = state.FlagSymbol + " "
+	}
+
+	segs := []segment{
+		{fmt.Sprintf("%s%s%s | %s", prefix, flagPart, state.RaceName, lapStr), 0, true},
+	}
+
+	if state.Leader.Number != "" {
 		segs = append(segs, segment{
-			fmt.Sprintf(" | P1 #%s %s", leader.VehicleNumber, leader.Driver.LastName), 2, false,
+			fmt.Sprintf(" | P1 #%s %s", state.Leader.Number, state.Leader.Name), 2, false,
 		})
 	}
 
 	for i, d := range drivers {
 		carNum := strconv.Itoa(d)
-		if v := feed.FindDriver(carNum); v != nil {
-			diff := v.RunningPosition - v.StartingPosition
-			diffStr := ""
-			if diff > 0 {
-				diffStr = fmt.Sprintf(" [+%d]", diff)
-			} else if diff < 0 {
-				diffStr = fmt.Sprintf(" [%d]", diff)
+		for _, p := range state.Positions {
+			if p.Number == carNum {
+				diffStr := ""
+				if p.Delta > 0 {
+					diffStr = fmt.Sprintf(" [+%d]", int(p.Delta))
+				} else if p.Delta < 0 {
+					diffStr = fmt.Sprintf(" [%d]", int(p.Delta))
+				}
+				segs = append(segs, segment{
+					fmt.Sprintf(" | #%s %s P%d%s", p.Number, p.Name, p.Position, diffStr), 1, i == 0,
+				})
+				break
 			}
-			segs = append(segs, segment{
-				fmt.Sprintf(" | #%s %s P%d%s", v.VehicleNumber, v.Driver.LastName, v.RunningPosition, diffStr), 1, i == 0,
-			})
 		}
 	}
 
 	return segs
 }
 
-func scheduleSegments(race *nascar.Race, driverNum int) []segment {
-	start, err := race.RaceStartUTC()
-	if err != nil {
-		return []segment{{race.RaceName, 0, true}}
+func scheduleSegmentsFromRace(race *series.Race, driverNum int, multiSeries bool) []segment {
+	prefix := ""
+	if multiSeries {
+		prefix = race.ShortName + ": "
 	}
 
-	local := start.Local()
+	if race.StartTime.IsZero() {
+		return []segment{{fmt.Sprintf("🏁 %s%s", prefix, race.RaceName), 0, true}}
+	}
+
+	local := race.StartTime.Local()
 	now := time.Now()
 
 	var timeStr string
@@ -267,11 +302,11 @@ func scheduleSegments(race *nascar.Race, driverNum int) []segment {
 	}
 
 	segs := []segment{
-		{fmt.Sprintf("🏁 %s", race.RaceName), 0, true},
+		{fmt.Sprintf("🏁 %s%s", prefix, race.RaceName), 0, true},
 		{fmt.Sprintf(" | %s", timeStr), 0, false},
 	}
-	if race.TelevisionBroadcaster != "" {
-		segs = append(segs, segment{fmt.Sprintf(" | %s", race.TelevisionBroadcaster), 2, false})
+	if race.Broadcaster != "" {
+		segs = append(segs, segment{fmt.Sprintf(" | %s", race.Broadcaster), 2, false})
 	}
 	if driverNum > 0 {
 		segs = append(segs, segment{fmt.Sprintf(" | #%d", driverNum), 1, true})

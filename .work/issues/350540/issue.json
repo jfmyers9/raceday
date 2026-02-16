@@ -1,0 +1,15 @@
+{
+  "id": "350540",
+  "title": "Phase 1: Define the series abstraction",
+  "status": "done",
+  "type": "chore",
+  "priority": 2,
+  "labels": [
+    "multi-series-support"
+  ],
+  "assignee": "worker-350540",
+  "parent_id": "845559",
+  "created": "2026-02-15T23:22:46.903396Z",
+  "updated": "2026-02-15T23:25:12.570978Z",
+  "description": "## Acceptance Criteria"
+}

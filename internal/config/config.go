@@ -84,11 +84,11 @@ func DefaultConfig() Config {
 }
 
 func configPath() string {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		dir = filepath.Join(os.Getenv("HOME"), ".config")
+	home := os.Getenv("HOME")
+	if home == "" {
+		home, _ = os.UserHomeDir()
 	}
-	return filepath.Join(dir, "raceday", "config.yaml")
+	return filepath.Join(home, ".config", "raceday", "config.yaml")
 }
 
 // Load reads config from ~/.config/raceday/config.yaml.

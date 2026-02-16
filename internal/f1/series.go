@@ -48,9 +48,9 @@ func (s *F1Series) FetchSchedule(year int) ([]series.Race, error) {
 		endTime, _ := time.Parse(time.RFC3339, sess.DateEnd)
 		complete := !endTime.IsZero() && endTime.Before(now)
 
-		raceName := m.OfficialName
-		if !strings.Contains(raceName, "Grand Prix") {
-			raceName = m.MeetingName + " Grand Prix"
+		raceName := m.MeetingName
+		if !strings.Contains(strings.ToLower(raceName), "grand prix") {
+			raceName += " Grand Prix"
 		}
 
 		lat, lon, _ := CircuitCoords(m.Location)

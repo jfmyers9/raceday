@@ -65,3 +65,6 @@
 {"id":"dcf5e4","title":"Phase 6: F1 TUI views","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:55.601725Z","closed":"2026-02-15T23:35:38.803505Z"}
 {"id":"1166f4","title":"Phase 7: Polish and edge cases","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:57.53706Z","closed":"2026-02-15T23:37:45.881385Z"}
 {"id":"845559","title":"Plan: multi-series support (F1 + IndyCar)","type":"chore","status":"done","labels":["multi-series-support"],"created":"2026-02-15T23:22:42.438905Z","closed":"2026-02-15T23:38:10.032915Z"}
+{"id":"e58499","title":"Fix: config dir, doubled GP name, empty broadcaster","type":"bug","status":"done","labels":["fix"],"created":"2026-02-16T01:40:27.606658Z","closed":"2026-02-16T01:40:52.013098Z"}
+{"id":"bec14f","title":"Phase 1: Fix config dir, doubled GP name, empty broadcaster","type":"bug","status":"done","labels":["config-fix"],"created":"2026-02-16T01:40:48.33893Z","closed":"2026-02-16T01:41:59.13279Z"}
+{"id":"1e0418","title":"Plan: fix config dir, GP name, empty broadcaster","type":"bug","status":"done","labels":["config-fix"],"created":"2026-02-16T01:40:41.290433Z","closed":"2026-02-16T01:41:59.148266Z"}

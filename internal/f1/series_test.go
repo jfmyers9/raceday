@@ -142,6 +142,9 @@ func TestFetchLiveState_NotRaceSession(t *testing.T) {
 		DateStart:   "2026-03-15T14:00:00Z",
 	}
 
+	// Clear cached session from previous tests to avoid cross-test pollution.
+	fileCache.Invalidate("latest_session.json")
+
 	srv := stubF1Server(sess, nil)
 	defer srv.Close()
 

@@ -92,19 +92,19 @@ func (s *F1Series) FetchLiveState() (*series.LiveState, error) {
 		return nil, nil
 	}
 
-	positions, err := FetchPositions(sess.SessionKey)
+	positions, err := cachedFetchPositions(sess)
 	if err != nil {
 		return nil, err
 	}
-	drivers, err := FetchDrivers(sess.SessionKey)
+	drivers, err := cachedFetchDrivers(sess)
 	if err != nil {
 		return nil, err
 	}
-	rcMsgs, err := FetchRaceControl(sess.SessionKey)
+	rcMsgs, err := cachedFetchRaceControl(sess)
 	if err != nil {
 		return nil, err
 	}
-	stints, _ := FetchStints(sess.SessionKey)
+	stints, _ := cachedFetchStints(sess)
 
 	// Build map of current tire compound per driver.
 	// Stints arrive in order; last entry per driver is the current stint.

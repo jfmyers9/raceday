@@ -110,7 +110,7 @@ type f1LiveStateMsg struct{ state *series.LiveState }
 type f1ScheduleMsg struct{ races []series.Race }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(fetchFeed, fetchSchedule, fetchStandings, fetchF1Live, fetchF1Schedule, tickCmd(), weatherTickCmd())
+	return tea.Batch(fetchFeed, fetchSchedule, fetchStandings, fetchF1Live, fetchF1Schedule, tickCmd(5*time.Second), weatherTickCmd())
 }
 
 func fetchSchedule() tea.Msg {
@@ -134,8 +134,15 @@ func fetchStandings() tea.Msg {
 	return standingsMsg(entries)
 }
 
-func tickCmd() tea.Cmd {
-	return tea.Tick(5*time.Second, func(t time.Time) tea.Msg {
+func (m Model) tickInterval() time.Duration {
+	if m.hasLiveRace() {
+		return 5 * time.Second
+	}
+	return 60 * time.Second
+}
+
+func tickCmd(d time.Duration) tea.Cmd {
+	return tea.Tick(d, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
 }
@@ -205,7 +212,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 
 	case tickMsg:
-		return m, tea.Batch(fetchFeed, fetchF1Live, tickCmd())
+		return m, tea.Batch(fetchFeed, fetchF1Live, tickCmd(m.tickInterval()))
 
 	case feedMsg:
 		feed := (*nascar.LiveFeed)(msg)

@@ -31,7 +31,7 @@ func fetchJSON(url string, v any) error {
 // FetchMeetings returns all meetings for a given year.
 func FetchMeetings(year int) ([]Meeting, error) {
 	cacheKey := fmt.Sprintf("meetings_%d.json", year)
-	if data, ok := readCache(cacheKey); ok {
+	if data, ok := fileCache.Read(cacheKey, cacheTTL); ok {
 		var m []Meeting
 		if err := json.Unmarshal(data, &m); err == nil {
 			return m, nil
@@ -45,7 +45,7 @@ func FetchMeetings(year int) ([]Meeting, error) {
 	}
 
 	if data, err := json.Marshal(meetings); err == nil {
-		writeCache(cacheKey, data)
+		fileCache.Write(cacheKey, data)
 	}
 	return meetings, nil
 }
@@ -53,7 +53,7 @@ func FetchMeetings(year int) ([]Meeting, error) {
 // FetchRaceSessions returns race sessions for a given year.
 func FetchRaceSessions(year int) ([]Session, error) {
 	cacheKey := fmt.Sprintf("race_sessions_%d.json", year)
-	if data, ok := readCache(cacheKey); ok {
+	if data, ok := fileCache.Read(cacheKey, cacheTTL); ok {
 		var s []Session
 		if err := json.Unmarshal(data, &s); err == nil {
 			return s, nil
@@ -67,16 +67,35 @@ func FetchRaceSessions(year int) ([]Session, error) {
 	}
 
 	if data, err := json.Marshal(sessions); err == nil {
-		writeCache(cacheKey, data)
+		fileCache.Write(cacheKey, data)
 	}
 	return sessions, nil
 }
 
 // FetchLatestSession returns the current or most recent session.
+// Results are cached with a proximity-based TTL that shortens as a
+// session approaches so we hit the network less when nothing is live.
 func FetchLatestSession() (*Session, error) {
-	url := baseURL + "/sessions?session_key=latest"
-	var sessions []Session
-	if err := fetchJSON(url, &sessions); err != nil {
+	const cacheKey = "latest_session.json"
+
+	// Compute TTL from previously cached session data.
+	ttl := 10 * time.Minute
+	if data, ok := fileCache.Read(cacheKey, 24*time.Hour); ok {
+		var prev []Session
+		if json.Unmarshal(data, &prev) == nil && len(prev) > 0 {
+			ttl = sessionTTL(&prev[0])
+		}
+	}
+
+	sessions, err := cachedFetch(cacheKey, ttl, func() ([]Session, error) {
+		url := baseURL + "/sessions?session_key=latest"
+		var s []Session
+		if err := fetchJSON(url, &s); err != nil {
+			return nil, err
+		}
+		return s, nil
+	})
+	if err != nil {
 		return nil, err
 	}
 	if len(sessions) == 0 {

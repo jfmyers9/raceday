@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 	"time"
+
+	"github.com/jfmyers/tmux-raceday/internal/cache"
 )
 
 const cacheTTL = 10 * time.Minute
 
-var httpClient = &http.Client{Timeout: 10 * time.Second}
+var (
+	httpClient = &http.Client{Timeout: 10 * time.Second}
+	fileCache  = cache.New("")
+)
 
 type Conditions struct {
 	Temp          float64
@@ -40,7 +43,7 @@ type apiResponse struct {
 func FetchCurrent(lat, lon float64) (*Conditions, error) {
 	key := fmt.Sprintf("weather_%.4f_%.4f.json", lat, lon)
 
-	if data, ok := readCache(key); ok {
+	if data, ok := fileCache.Read(key, cacheTTL); ok {
 		var c Conditions
 		if err := json.Unmarshal(data, &c); err == nil {
 			return &c, nil
@@ -85,7 +88,7 @@ func FetchCurrent(lat, lon float64) (*Conditions, error) {
 	}
 
 	if data, err := json.Marshal(c); err == nil {
-		_ = writeCache(key, data)
+		_ = fileCache.Write(key, data)
 	}
 
 	return c, nil
@@ -124,35 +127,3 @@ func WindDirectionArrow(deg int) string {
 	return arrows[idx]
 }
 
-func cacheDir() string {
-	dir, err := os.UserCacheDir()
-	if err != nil {
-		dir = os.TempDir()
-	}
-	return filepath.Join(dir, "raceday")
-}
-
-func cachePath(key string) string { return filepath.Join(cacheDir(), key) }
-
-func readCache(key string) ([]byte, bool) {
-	p := cachePath(key)
-	info, err := os.Stat(p)
-	if err != nil {
-		return nil, false
-	}
-	if time.Since(info.ModTime()) > cacheTTL {
-		return nil, false
-	}
-	data, err := os.ReadFile(p)
-	if err != nil {
-		return nil, false
-	}
-	return data, true
-}
-
-func writeCache(key string, data []byte) error {
-	if err := os.MkdirAll(cacheDir(), 0o755); err != nil {
-		return err
-	}
-	return os.WriteFile(cachePath(key), data, 0o644)
-}

@@ -48,8 +48,24 @@ func (s *NASCARSeries) FetchSchedule(year int) ([]series.Race, error) {
 	return out, nil
 }
 
+func (s *NASCARSeries) nextRaceStart() time.Time {
+	races, err := FetchCupSchedule(timeNow().Year())
+	if err != nil {
+		return time.Time{}
+	}
+	next := NextRace(races)
+	if next == nil {
+		return time.Time{}
+	}
+	t, err := next.RaceStartUTC()
+	if err != nil {
+		return time.Time{}
+	}
+	return t
+}
+
 func (s *NASCARSeries) FetchLiveState() (*series.LiveState, error) {
-	feed, err := FetchLiveFeed()
+	feed, err := fetchLiveFeedCached(s.nextRaceStart())
 	if err != nil {
 		return nil, nil
 	}
@@ -116,7 +132,7 @@ func scheduleCacheKey() string {
 // On first call after the race finishes, the schedule cache is invalidated
 // so the next fetch can pick up WinnerDriverID from the API.
 func (s *NASCARSeries) raceOver(raceID int) bool {
-	invalidateCache(scheduleCacheKey())
+	fileCache.Invalidate(scheduleCacheKey())
 
 	year := timeNow().Year()
 	races, err := FetchCupSchedule(year)

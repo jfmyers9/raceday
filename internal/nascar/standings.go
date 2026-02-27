@@ -32,7 +32,14 @@ type PointsEntry struct {
 }
 
 // FetchStandings retrieves the current points standings.
+// Results are served from a local file cache when fresh.
 func FetchStandings() ([]PointsEntry, error) {
+	const cacheKey = "live-points.json"
+
+	if data, ok := fileCache.Read(cacheKey, cacheTTL); ok {
+		return parseStandings(data)
+	}
+
 	resp, err := httpClient.Get(pointsURL)
 	if err != nil {
 		return nil, fmt.Errorf("fetching standings: %w", err)
@@ -48,10 +55,14 @@ func FetchStandings() ([]PointsEntry, error) {
 		return nil, fmt.Errorf("reading standings: %w", err)
 	}
 
+	_ = fileCache.Write(cacheKey, data)
+	return parseStandings(data)
+}
+
+func parseStandings(data []byte) ([]PointsEntry, error) {
 	var entries []PointsEntry
 	if err := json.Unmarshal(data, &entries); err != nil {
 		return nil, fmt.Errorf("parsing standings: %w", err)
 	}
-
 	return entries, nil
 }

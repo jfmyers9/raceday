@@ -70,16 +70,16 @@ func TestCacheKeyVariesByCoords(t *testing.T) {
 
 func TestCacheRoundTrip(t *testing.T) {
 	key := "weather_test_roundtrip.json"
-	defer os.Remove(cachePath(key))
+	defer fileCache.Invalidate(key)
 
 	data := []byte(`{"Temp":80.5}`)
-	if err := writeCache(key, data); err != nil {
-		t.Fatalf("writeCache: %v", err)
+	if err := fileCache.Write(key, data); err != nil {
+		t.Fatalf("Write: %v", err)
 	}
 
-	got, ok := readCache(key)
+	got, ok := fileCache.Read(key, cacheTTL)
 	if !ok {
-		t.Fatal("readCache returned not ok")
+		t.Fatal("Read returned not ok")
 	}
 	if string(got) != string(data) {
 		t.Errorf("got %q, want %q", got, data)

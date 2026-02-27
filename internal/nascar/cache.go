@@ -1,52 +1,44 @@
 package nascar
 
 import (
-	"os"
-	"path/filepath"
+	"encoding/json"
 	"time"
+
+	"github.com/jfmyers/tmux-raceday/internal/cache"
 )
 
 const cacheTTL = 1 * time.Hour
 
-func cacheDir() string {
-	dir, err := os.UserCacheDir()
+var fileCache = cache.New("")
+
+func fetchLiveFeedCached(nextRaceStart time.Time) (*LiveFeed, error) {
+	const key = "live_feed.json"
+
+	ttl := cache.TTLForProximity(nextRaceStart)
+	if ttl > 0 {
+		if data, ok := fileCache.Read(key, ttl); ok {
+			var feed LiveFeed
+			if err := json.Unmarshal(data, &feed); err == nil {
+				return &feed, nil
+			}
+		}
+	}
+
+	feed, err := FetchLiveFeed()
 	if err != nil {
-		dir = os.TempDir()
+		// Fall back to stale cache on API failure.
+		if data, _ := fileCache.ReadStale(key, ttl); data != nil {
+			var stale LiveFeed
+			if json.Unmarshal(data, &stale) == nil {
+				return &stale, nil
+			}
+		}
+		return nil, err
 	}
-	return filepath.Join(dir, "raceday")
-}
 
-func cachePath(key string) string {
-	return filepath.Join(cacheDir(), key)
-}
+	if data, err := json.Marshal(feed); err == nil {
+		_ = fileCache.Write(key, data)
+	}
 
-// readCache returns cached data if it exists and is younger than TTL.
-func readCache(key string) ([]byte, bool) {
-	path := cachePath(key)
-	info, err := os.Stat(path)
-	if err != nil {
-		return nil, false
-	}
-	if time.Since(info.ModTime()) > cacheTTL {
-		return nil, false
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, false
-	}
-	return data, true
-}
-
-// invalidateCache removes a cache entry so the next fetch hits the API.
-func invalidateCache(key string) {
-	_ = os.Remove(cachePath(key))
-}
-
-// writeCache stores data to the cache file.
-func writeCache(key string, data []byte) error {
-	dir := cacheDir()
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return err
-	}
-	return os.WriteFile(cachePath(key), data, 0o644)
+	return feed, nil
 }

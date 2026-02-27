@@ -18,7 +18,7 @@ var httpClient = &http.Client{Timeout: 10 * time.Second}
 func FetchCupSchedule(year int) ([]Race, error) {
 	cacheKey := fmt.Sprintf("schedule_%d.json", year)
 
-	if data, ok := readCache(cacheKey); ok {
+	if data, ok := fileCache.Read(cacheKey, cacheTTL); ok {
 		return parseCupSchedule(data)
 	}
 
@@ -38,7 +38,7 @@ func FetchCupSchedule(year int) ([]Race, error) {
 		return nil, fmt.Errorf("reading response: %w", err)
 	}
 
-	_ = writeCache(cacheKey, data)
+	_ = fileCache.Write(cacheKey, data)
 	return parseCupSchedule(data)
 }
 
